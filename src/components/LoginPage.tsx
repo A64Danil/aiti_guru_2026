@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react';
-import { Toaster, toast } from 'sonner';
+import { toast } from 'sonner';
 import { login } from '../api';
 import { useAppStore } from '../store';
 import type { LoginFormData } from '../types';
@@ -65,7 +65,6 @@ export function LoginPage() {
 
   return (
     <div className="login-page">
-      <Toaster position="top-center" />
       <div className="login-container">
         <h1 className="login-title">Вход в систему</h1>
         <p className="login-subtitle">Введите ваши учетные данные</p>

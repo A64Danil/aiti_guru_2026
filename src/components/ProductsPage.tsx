@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo, type ChangeEvent, type FormEvent } from 'react';
-import { Toaster, toast } from 'sonner';
+import { toast } from 'sonner';
 import { useAppStore } from '../store';
 import { getProducts, searchProducts } from '../api';
 import type { Product, SortField, SortOrder, AddProductFormData } from '../types';
@@ -170,8 +170,6 @@ export function ProductsPage() {
 
   return (
     <div className="products-page">
-      <Toaster position="top-center" />
-      
       <header className="header">
         <h1 className="header-title">Товары</h1>
         <div className="header-right">

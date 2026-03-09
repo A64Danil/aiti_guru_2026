@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { Toaster } from 'sonner';
 import { useAppStore, initializeAuth } from './store';
 import { LoginPage } from './components/LoginPage';
 import { ProductsPage } from './components/ProductsPage';
@@ -11,7 +12,12 @@ function App() {
     initializeAuth();
   }, []);
 
-  return isAuthenticated ? <ProductsPage /> : <LoginPage />;
+  return (
+    <>
+      <Toaster position="top-center" />
+      {isAuthenticated ? <ProductsPage /> : <LoginPage />}
+    </>
+  );
 }
 
 export default App;
