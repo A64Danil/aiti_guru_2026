@@ -221,11 +221,11 @@ export function ProductsPage() {
               <tbody>
                 {sortedProducts.map((product) => (
                   <tr key={product.id}>
-                    <td>{product.title}</td>
-                    <td>{product.brand}</td>
+                    <td className='product-title'>{product.title}</td>
+                    <td className='product-brand'>{product.brand}</td>
                     <td>{product.id.toString().padStart(6, '0')}</td>
                     <td className={product.rating < 3 ? 'rating-low' : 'rating-normal'}>
-                      {product.rating.toFixed(1)}
+                      {product.rating.toFixed(1)}/5
                     </td>
                     <td>{product.price.toFixed(2)} ₽</td>
                   </tr>

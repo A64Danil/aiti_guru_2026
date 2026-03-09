@@ -291,6 +291,11 @@ body {
   background-color: #F9FAFB;
 }
 
+.product-title,
+.product-brand {
+  font-weight: 700;
+}
+
 .rating-low {
   color: var(--error-color);
   font-weight: 600;
