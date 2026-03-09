@@ -38,7 +38,8 @@ export interface AuthResponse {
   lastName: string;
   gender: string;
   image: string;
-  token: string;
+  accessToken: string;
+  refreshToken: string;
 }
 
 // Local product type (for adding new products)
