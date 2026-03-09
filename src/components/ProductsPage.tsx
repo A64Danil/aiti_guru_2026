@@ -84,9 +84,25 @@ export function ProductsPage() {
 
     if (sortState.field) {
       result.sort((a, b) => {
-        const aVal = a[sortState.field!];
-        const bVal = b[sortState.field!];
+        let aVal: string | number;
+        let bVal: string | number;
+
+        // Handle id field for Артикул
+        if (sortState.field === 'id') {
+          aVal = a.id;
+          bVal = b.id;
+        } else {
+          aVal = a[sortState.field as keyof Product] as string | number;
+          bVal = b[sortState.field as keyof Product] as string | number;
+        }
         
+        // Handle string comparison (case-insensitive for text fields)
+        if (typeof aVal === 'string' && typeof bVal === 'string') {
+          const comparison = aVal.toLowerCase().localeCompare(bVal.toLowerCase());
+          return sortState.order === 'asc' ? comparison : -comparison;
+        }
+        
+        // Handle number comparison
         if (sortState.order === 'asc') {
           return aVal > bVal ? 1 : -1;
         }
@@ -207,9 +223,15 @@ export function ProductsPage() {
             <table className="products-table">
               <thead>
                 <tr>
-                  <th>Наименование</th>
-                  <th>Вендор</th>
-                  <th>Артикул</th>
+                  <th onClick={() => handleSort('title')}>
+                    Наименование {getSortIcon('title')}
+                  </th>
+                  <th onClick={() => handleSort('brand')}>
+                    Вендор {getSortIcon('brand')}
+                  </th>
+                  <th onClick={() => handleSort('id')}>
+                    Артикул {getSortIcon('id')}
+                  </th>
                   <th onClick={() => handleSort('rating')}>
                     Оценка {getSortIcon('rating')}
                   </th>

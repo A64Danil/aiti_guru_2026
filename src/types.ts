@@ -51,7 +51,7 @@ export interface NewProduct {
 }
 
 // Sorting
-export type SortField = 'price' | 'rating';
+export type SortField = 'title' | 'brand' | 'id' | 'price' | 'rating';
 export type SortOrder = 'asc' | 'desc';
 
 export interface SortState {
