@@ -47,7 +47,7 @@ export function LoginPage() {
         password: formData.password,
       });
       
-      setToken(response.token, formData.rememberMe);
+      setToken(response.accessToken, formData.rememberMe);
       toast.success('Успешная авторизация');
     } catch (error) {
       setAuthError('Неверный логин или пароль');
