@@ -1,10 +1,10 @@
 import { useState, type FormEvent } from 'react';
-import { toast } from 'sonner';
-import { login } from '../services/authApi';
-import { useAuthStore } from '../store';
+import { useAuth } from '../hooks';
 import type { LoginFormData } from '../types';
 
 export function LoginPage() {
+  const { login } = useAuth();
+  
   const [formData, setFormData] = useState<LoginFormData>({
     username: '',
     password: '',
@@ -13,8 +13,6 @@ export function LoginPage() {
   const [errors, setErrors] = useState<Partial<Record<keyof LoginFormData, string>>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
-  
-  const setToken = useAuthStore((state) => state.setToken);
 
   const validate = (): boolean => {
     const newErrors: Partial<Record<keyof LoginFormData, string>> = {};
@@ -41,19 +39,17 @@ export function LoginPage() {
     
     setIsSubmitting(true);
     
-    try {
-      const response = await login({
-        username: formData.username,
-        password: formData.password,
-      });
-      
-      setToken(response.accessToken, formData.rememberMe);
-      toast.success('Успешная авторизация');
-    } catch (error) {
+    const success = await login({
+      username: formData.username,
+      password: formData.password,
+      rememberMe: formData.rememberMe,
+    });
+    
+    if (!success) {
       setAuthError('Неверный логин или пароль');
-    } finally {
-      setIsSubmitting(false);
     }
+    
+    setIsSubmitting(false);
   };
 
   const handleChange = (field: keyof LoginFormData, value: string | boolean) => {

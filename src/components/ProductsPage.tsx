@@ -1,25 +1,10 @@
-import { useEffect, useState, useMemo, type ChangeEvent, type FormEvent } from 'react';
-import { toast } from 'sonner';
-import { useProductsStore, useAuthStore } from '../store';
-import { getProducts, searchProducts } from '../services/productsApi';
-import type { Product, SortField, SortOrder, AddProductFormData } from '../types';
+import { useState, type FormEvent, type ChangeEvent } from 'react';
+import { useProducts, useAuth, useSortIcon } from '../hooks';
+import type { Product, AddProductFormData, SortField } from '../types';
 
 export function ProductsPage() {
-  const {
-    products,
-    setProducts,
-    addProduct,
-    isLoading,
-    setIsLoading,
-    error,
-    setError,
-    searchQuery,
-    setSearchQuery,
-    sortState,
-    setSortState,
-  } = useProductsStore();
-
-  const logout = useAuthStore((state) => state.logout);
+  const { products, isLoading, error, searchQuery, sortState, handleSort, addProduct, search } = useProducts();
+  const { logout } = useAuth();
   
   const [showModal, setShowModal] = useState(false);
   
@@ -31,89 +16,10 @@ export function ProductsPage() {
   });
   const [formErrors, setFormErrors] = useState<Partial<Record<keyof AddProductFormData, string>>>({});
 
-  // Load products on mount
-  useEffect(() => {
-    const fetchProducts = async () => {
-      setIsLoading(true);
-      setError(null);
-      try {
-        const response = await getProducts();
-        setProducts(response.products);
-      } catch (err) {
-        setError('Не удалось загрузить товары');
-        toast.error('Ошибка при загрузке товаров');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchProducts();
-  }, [setProducts, setIsLoading, setError]);
-
-  // Handle search
-  const handleSearch = async (e: ChangeEvent<HTMLInputElement>) => {
-    const query = e.target.value;
-    setSearchQuery(query);
-
-    if (query.trim() === '') {
-      // Reset to all products
-      const response = await getProducts();
-      setProducts(response.products);
-      return;
-    }
-
-    setIsLoading(true);
-    try {
-      const response = await searchProducts(query);
-      setProducts(response.products);
-    } catch (err) {
-      toast.error('Ошибка при поиске товаров');
-    } finally {
-      setIsLoading(false);
-    }
+  // Handle search input
+  const handleSearchChange = (e: ChangeEvent<HTMLInputElement>) => {
+    search(e.target.value);
   };
-
-  // Handle sort
-  const handleSort = (field: SortField) => {
-    const newOrder: SortOrder = 
-      sortState.field === field && sortState.order === 'asc' ? 'desc' : 'asc';
-    setSortState({ field, order: newOrder });
-  };
-
-  // Sort and filter products
-  const sortedProducts = useMemo(() => {
-    let result = [...products];
-
-    if (sortState.field) {
-      result.sort((a, b) => {
-        let aVal: string | number;
-        let bVal: string | number;
-
-        // Handle id field for Артикул
-        if (sortState.field === 'id') {
-          aVal = a.id;
-          bVal = b.id;
-        } else {
-          aVal = a[sortState.field as keyof Product] as string | number;
-          bVal = b[sortState.field as keyof Product] as string | number;
-        }
-        
-        // Handle string comparison (case-insensitive for text fields)
-        if (typeof aVal === 'string' && typeof bVal === 'string') {
-          const comparison = aVal.toLowerCase().localeCompare(bVal.toLowerCase());
-          return sortState.order === 'asc' ? comparison : -comparison;
-        }
-        
-        // Handle number comparison
-        if (sortState.order === 'asc') {
-          return aVal > bVal ? 1 : -1;
-        }
-        return aVal < bVal ? 1 : -1;
-      });
-    }
-
-    return result;
-  }, [products, sortState]);
 
   // Handle add product
   const handleAddProduct = (e: FormEvent) => {
@@ -154,20 +60,9 @@ export function ProductsPage() {
     };
 
     addProduct(newProduct);
-    toast.success('Товар успешно добавлен');
     setShowModal(false);
     setFormData({ title: '', price: '', brand: '', sku: '' });
     setFormErrors({});
-  };
-
-  const handleLogout = () => {
-    logout();
-    toast.info('Вы вышли из системы');
-  };
-
-  const getSortIcon = (field: SortField) => {
-    if (sortState.field !== field) return '⇅';
-    return sortState.order === 'asc' ? '↑' : '↓';
   };
 
   return (
@@ -175,7 +70,7 @@ export function ProductsPage() {
       <header className="header">
         <h1 className="header-title">Товары</h1>
         <div className="header-right">
-          <button className="logout-button" onClick={handleLogout}>
+          <button className="logout-button" onClick={logout}>
             Выйти
           </button>
         </div>
@@ -205,7 +100,7 @@ export function ProductsPage() {
               className="search-input"
               placeholder="Поиск..."
               value={searchQuery}
-              onChange={handleSearch}
+              onChange={handleSearchChange}
             />
           </div>
         </div>
@@ -224,24 +119,24 @@ export function ProductsPage() {
               <thead>
                 <tr>
                   <th onClick={() => handleSort('title')}>
-                    Наименование {getSortIcon('title')}
+                    Наименование {useSortIcon('title', sortState)}
                   </th>
                   <th onClick={() => handleSort('brand')}>
-                    Вендор {getSortIcon('brand')}
+                    Вендор {useSortIcon('brand', sortState)}
                   </th>
                   <th onClick={() => handleSort('id')}>
-                    Артикул {getSortIcon('id')}
+                    Артикул {useSortIcon('id', sortState)}
                   </th>
                   <th onClick={() => handleSort('rating')}>
-                    Оценка {getSortIcon('rating')}
+                    Оценка {useSortIcon('rating', sortState)}
                   </th>
                   <th onClick={() => handleSort('price')}>
-                    Цена {getSortIcon('price')}
+                    Цена {useSortIcon('price', sortState)}
                   </th>
                 </tr>
               </thead>
               <tbody>
-                {sortedProducts.map((product) => (
+                {products.map((product) => (
                   <tr key={product.id}>
                     <td className='product-title'>{product.title}</td>
                     <td className='product-brand'>{product.brand}</td>

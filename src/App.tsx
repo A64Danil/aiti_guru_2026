@@ -1,12 +1,11 @@
 import { useEffect } from 'react';
 import { Toaster } from 'sonner';
-import { useAuthStore } from './store';
+import { useAuth } from './hooks';
 import { LoginPage } from './components/LoginPage';
 import { ProductsPage } from './components/ProductsPage';
 
 function App() {
-  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
-  const initializeAuth = useAuthStore((state) => state.initializeAuth);
+  const { isAuthenticated, initializeAuth } = useAuth();
 
   // Initialize auth state from storage on app load
   useEffect(() => {
