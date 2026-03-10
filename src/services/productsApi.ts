@@ -1,9 +1,8 @@
 import type { Product, ProductsResponse, SearchProductsResponse } from '../types';
-
-const BASE_URL = 'https://dummyjson.com';
+import { BASE_URL, API_ENDPOINTS, APP_CONFIG } from '../constants';
 
 export const getProducts = async (): Promise<ProductsResponse> => {
-  const response = await fetch(`${BASE_URL}/products?limit=0`);
+  const response = await fetch(`${BASE_URL}${API_ENDPOINTS.PRODUCTS}?limit=${APP_CONFIG.PRODUCTS_LIMIT}`);
 
   if (!response.ok) {
     throw new Error('Failed to fetch products');
@@ -13,7 +12,7 @@ export const getProducts = async (): Promise<ProductsResponse> => {
 };
 
 export const searchProducts = async (query: string): Promise<SearchProductsResponse> => {
-  const response = await fetch(`${BASE_URL}/products/search?q=${encodeURIComponent(query)}&limit=0`);
+  const response = await fetch(`${BASE_URL}${API_ENDPOINTS.PRODUCTS_SEARCH}?q=${encodeURIComponent(query)}&limit=${APP_CONFIG.PRODUCTS_LIMIT}`);
 
   if (!response.ok) {
     throw new Error('Failed to search products');

@@ -3,6 +3,7 @@ import { toast } from 'sonner';
 import { useProductsStore } from '../store';
 import { getProducts, searchProducts } from '../services/productsApi';
 import { useDebounce } from './useDebounce';
+import { MESSAGES } from '../constants';
 import type { Product, SortField, SortOrder } from '../types';
 
 export function useProducts() {
@@ -21,7 +22,7 @@ export function useProducts() {
   } = useProductsStore();
 
   // Debounce the search query for API calls
-  const debouncedSearchQuery = useDebounce(searchQuery, 400);
+  const debouncedSearchQuery = useDebounce(searchQuery);
 
   // Fetch all products
   const fetchProducts = useCallback(async () => {
@@ -31,8 +32,8 @@ export function useProducts() {
       const response = await getProducts();
       setProducts(response.products);
     } catch {
-      setError('Не удалось загрузить товары');
-      toast.error('Ошибка при загрузке товаров');
+      setError(MESSAGES.PRODUCTS_LOAD_ERROR);
+      toast.error(MESSAGES.PRODUCTS_LOAD_ERROR);
     } finally {
       setIsLoading(false);
     }
@@ -85,7 +86,7 @@ export function useProducts() {
   // Add product
   const addNewProduct = useCallback((product: Product) => {
     addProduct(product);
-    toast.success('Товар успешно добавлен');
+    toast.success(MESSAGES.PRODUCTS_ADD_SUCCESS);
   }, [addProduct]);
 
   // Load products on mount
@@ -106,7 +107,7 @@ export function useProducts() {
         const response = await searchProducts(debouncedSearchQuery);
         setProducts(response.products);
       } catch {
-        toast.error('Ошибка при поиске товаров');
+        toast.error(MESSAGES.PRODUCTS_SEARCH_ERROR);
       } finally {
         setIsLoading(false);
       }

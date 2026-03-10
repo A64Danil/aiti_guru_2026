@@ -1,9 +1,8 @@
 import type { LoginCredentials, AuthResponse } from '../types';
-
-const BASE_URL = 'https://dummyjson.com';
+import { BASE_URL, API_ENDPOINTS } from '../constants';
 
 export const login = async (credentials: LoginCredentials): Promise<AuthResponse> => {
-  const response = await fetch(`${BASE_URL}/auth/login`, {
+  const response = await fetch(`${BASE_URL}${API_ENDPOINTS.AUTH_LOGIN}`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
