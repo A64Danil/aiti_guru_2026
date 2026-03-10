@@ -2,6 +2,7 @@ import { useCallback } from 'react';
 import { toast } from 'sonner';
 import { useAuthStore } from '../store';
 import { login as loginApi } from '../services/authApi';
+import { isAuthResponse } from '../schemas';
 import type { LoginCredentials } from '../types';
 
 interface LoginParams extends LoginCredentials {
@@ -24,6 +25,12 @@ export function useAuth() {
         username: params.username,
         password: params.password,
       });
+      
+      if (!isAuthResponse(response)) {
+        toast.error('Неверный формат ответа сервера');
+        return false;
+      }
+      
       setToken(response.accessToken, params.rememberMe);
       toast.success('Успешная авторизация');
       return true;

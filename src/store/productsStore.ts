@@ -1,6 +1,12 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { Product, SortState } from '../types';
+import { isProduct, type Product } from '../schemas';
+import type { SortState } from '../types';
+
+// Type Guard для проверки массива продуктов
+function isProductArray(data: unknown): data is Product[] {
+  return Array.isArray(data) && data.every(isProduct);
+}
 
 interface ProductsState {
   products: Product[];
@@ -26,11 +32,25 @@ export const useProductsStore = create<ProductsState>()(
       searchQuery: '',
       sortState: { field: null, order: 'asc' },
 
-      setProducts: (products: Product[]) => set({ products }),
+      setProducts: (products: Product[]) => {
+        // Type Guard проверка
+        if (!isProductArray(products)) {
+          console.warn('Invalid products data received');
+          return;
+        }
+        set({ products });
+      },
       
-      addProduct: (product: Product) => set((state) => ({ 
-        products: [product, ...state.products] 
-      })),
+      addProduct: (product: Product) => {
+        // Type Guard проверка
+        if (!isProduct(product)) {
+          console.warn('Invalid product data received');
+          return;
+        }
+        set((state) => ({ 
+          products: [product, ...state.products] 
+        }));
+      },
       
       setIsLoading: (isLoading: boolean) => set({ isLoading }),
       

@@ -3,6 +3,7 @@ import { toast } from 'sonner';
 import { useProductsStore } from '../store';
 import { getProducts, searchProducts } from '../services/productsApi';
 import { useDebounce } from './useDebounce';
+import { isProductsResponse, isSearchProductsResponse } from '../schemas';
 import { MESSAGES } from '../constants';
 import type { Product, SortField, SortOrder } from '../types';
 
@@ -30,6 +31,11 @@ export function useProducts() {
     setError(null);
     try {
       const response = await getProducts();
+      
+      if (!isProductsResponse(response)) {
+        throw new Error('Invalid products response');
+      }
+      
       setProducts(response.products);
     } catch {
       setError(MESSAGES.PRODUCTS_LOAD_ERROR);
@@ -105,6 +111,11 @@ export function useProducts() {
       setIsLoading(true);
       try {
         const response = await searchProducts(debouncedSearchQuery);
+        
+        if (!isSearchProductsResponse(response)) {
+          throw new Error('Invalid search response');
+        }
+        
         setProducts(response.products);
       } catch {
         toast.error(MESSAGES.PRODUCTS_SEARCH_ERROR);

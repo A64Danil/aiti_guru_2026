@@ -19,7 +19,7 @@ export const ProductSchema = z.object({
 export const AuthResponseSchema = z.object({
   id: z.number(),
   username: z.string(),
-  email: z.string().email(),
+  email: z.email(),
   firstName: z.string(),
   lastName: z.string(),
   gender: z.string(),
