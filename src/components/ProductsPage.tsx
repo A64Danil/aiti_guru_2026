@@ -1,20 +1,14 @@
-import { useState, type FormEvent, type ChangeEvent } from 'react';
+import { useState, type ChangeEvent } from 'react';
 import { useProducts, useAuth } from '../hooks';
-import type { Product, AddProductFormData, SortField } from '../types';
+import { Modal } from './Modal';
+import { AddProductForm } from './AddProductForm';
+import type { Product, SortField } from '../types';
 
 export function ProductsPage() {
   const { products, isLoading, error, searchQuery, sortState, handleSort, addProduct, search } = useProducts();
   const { logout } = useAuth();
   
   const [showModal, setShowModal] = useState(false);
-  
-  const [formData, setFormData] = useState<AddProductFormData>({
-    title: '',
-    price: '',
-    brand: '',
-    sku: '',
-  });
-  const [formErrors, setFormErrors] = useState<Partial<Record<keyof AddProductFormData, string>>>({});
 
   // Helper function for sort icons (not a hook!)
   const getSortIcon = (field: SortField): string => {
@@ -28,47 +22,9 @@ export function ProductsPage() {
   };
 
   // Handle add product
-  const handleAddProduct = (e: FormEvent) => {
-    e.preventDefault();
-    
-    const newErrors: Partial<Record<keyof AddProductFormData, string>> = {};
-    
-    if (!formData.title.trim()) {
-      newErrors.title = 'Наименование обязательно';
-    }
-    if (!formData.price.trim()) {
-      newErrors.price = 'Цена обязательна';
-    }
-    if (!formData.brand.trim()) {
-      newErrors.brand = 'Вендор обязателен';
-    }
-    if (!formData.sku.trim()) {
-      newErrors.sku = 'Артикул обязателен';
-    }
-    
-    if (Object.keys(newErrors).length > 0) {
-      setFormErrors(newErrors);
-      return;
-    }
-
-    const newProduct: Product = {
-      id: Date.now(),
-      title: formData.title,
-      description: '',
-      price: parseFloat(formData.price),
-      discountPercentage: 0,
-      rating: 0,
-      stock: 0,
-      brand: formData.brand,
-      category: '',
-      thumbnail: '',
-      images: [],
-    };
-
-    addProduct(newProduct);
+  const handleAddProduct = (product: Product) => {
+    addProduct(product);
     setShowModal(false);
-    setFormData({ title: '', price: '', brand: '', sku: '' });
-    setFormErrors({});
   };
 
   return (
@@ -160,85 +116,12 @@ export function ProductsPage() {
       </main>
 
       {/* Add Product Modal */}
-      {showModal && (
-        <div className="modal-overlay" onClick={() => setShowModal(false)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <h2 className="modal-title">Добавить товар</h2>
-            
-            <form onSubmit={handleAddProduct}>
-              <div className="form-group">
-                <label className="form-label">Наименование</label>
-                <input
-                  type="text"
-                  className={`form-input ${formErrors.title ? 'error' : ''}`}
-                  value={formData.title}
-                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  placeholder="Введите наименование"
-                />
-                {formErrors.title && (
-                  <span className="error-message">{formErrors.title}</span>
-                )}
-              </div>
-
-              <div className="form-group">
-                <label className="form-label">Цена</label>
-                <input
-                  type="number"
-                  className={`form-input ${formErrors.price ? 'error' : ''}`}
-                  value={formData.price}
-                  onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                  placeholder="Введите цену"
-                  step="0.01"
-                />
-                {formErrors.price && (
-                  <span className="error-message">{formErrors.price}</span>
-                )}
-              </div>
-
-              <div className="form-group">
-                <label className="form-label">Вендор</label>
-                <input
-                  type="text"
-                  className={`form-input ${formErrors.brand ? 'error' : ''}`}
-                  value={formData.brand}
-                  onChange={(e) => setFormData({ ...formData, brand: e.target.value })}
-                  placeholder="Введите вендора"
-                />
-                {formErrors.brand && (
-                  <span className="error-message">{formErrors.brand}</span>
-                )}
-              </div>
-
-              <div className="form-group">
-                <label className="form-label">Артикул</label>
-                <input
-                  type="text"
-                  className={`form-input ${formErrors.sku ? 'error' : ''}`}
-                  value={formData.sku}
-                  onChange={(e) => setFormData({ ...formData, sku: e.target.value })}
-                  placeholder="Введите артикул"
-                />
-                {formErrors.sku && (
-                  <span className="error-message">{formErrors.sku}</span>
-                )}
-              </div>
-
-              <div className="modal-actions">
-                <button
-                  type="button"
-                  className="cancel-button"
-                  onClick={() => setShowModal(false)}
-                >
-                  Отмена
-                </button>
-                <button type="submit" className="submit-button">
-                  Добавить
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      <Modal isOpen={showModal} onClose={() => setShowModal(false)}>
+        <AddProductForm
+          onSubmit={handleAddProduct}
+          onClose={() => setShowModal(false)}
+        />
+      </Modal>
     </div>
   );
 }

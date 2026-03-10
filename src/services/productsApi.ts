@@ -14,7 +14,6 @@ export const getProducts = async (): Promise<ProductsResponse> => {
   }
 
   const data = await response.json();
-  console.log(data);
   
   // Validate response with Zod
   const validated = safeParseProductsResponse(data);
