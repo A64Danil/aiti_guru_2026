@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from 'react';
 import { toast } from 'sonner';
-import { login } from '../api';
+import { login } from '../services/authApi';
 import { useAuthStore } from '../store';
 import type { LoginFormData } from '../types';
 

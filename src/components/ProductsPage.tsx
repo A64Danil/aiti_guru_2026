@@ -1,7 +1,7 @@
 import { useEffect, useState, useMemo, type ChangeEvent, type FormEvent } from 'react';
 import { toast } from 'sonner';
 import { useProductsStore, useAuthStore } from '../store';
-import { getProducts, searchProducts } from '../api';
+import { getProducts, searchProducts } from '../services/productsApi';
 import type { Product, SortField, SortOrder, AddProductFormData } from '../types';
 
 export function ProductsPage() {
