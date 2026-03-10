@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from 'react';
 import { toast } from 'sonner';
 import { login } from '../api';
-import { useAppStore } from '../store';
+import { useAuthStore } from '../store';
 import type { LoginFormData } from '../types';
 
 export function LoginPage() {
@@ -14,7 +14,7 @@ export function LoginPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
   
-  const setToken = useAppStore((state) => state.setToken);
+  const setToken = useAuthStore((state) => state.setToken);
 
   const validate = (): boolean => {
     const newErrors: Partial<Record<keyof LoginFormData, string>> = {};

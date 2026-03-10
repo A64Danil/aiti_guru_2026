@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo, type ChangeEvent, type FormEvent } from 'react';
 import { toast } from 'sonner';
-import { useAppStore } from '../store';
+import { useProductsStore, useAuthStore } from '../store';
 import { getProducts, searchProducts } from '../api';
 import type { Product, SortField, SortOrder, AddProductFormData } from '../types';
 
@@ -17,10 +17,12 @@ export function ProductsPage() {
     setSearchQuery,
     sortState,
     setSortState,
-    logout,
-  } = useAppStore();
+  } = useProductsStore();
 
+  const logout = useAuthStore((state) => state.logout);
+  
   const [showModal, setShowModal] = useState(false);
+  
   const [formData, setFormData] = useState<AddProductFormData>({
     title: '',
     price: '',
