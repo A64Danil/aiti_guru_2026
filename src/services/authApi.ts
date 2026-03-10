@@ -1,5 +1,9 @@
-import type { LoginCredentials, AuthResponse } from '../types';
 import { BASE_URL, API_ENDPOINTS } from '../constants';
+import { 
+  safeParseAuthResponse,
+  type LoginCredentials, 
+  type AuthResponse 
+} from '../schemas';
 
 export const login = async (credentials: LoginCredentials): Promise<AuthResponse> => {
   const response = await fetch(`${BASE_URL}${API_ENDPOINTS.AUTH_LOGIN}`, {
@@ -14,5 +18,13 @@ export const login = async (credentials: LoginCredentials): Promise<AuthResponse
     throw new Error('Invalid credentials');
   }
 
-  return response.json();
+  const data = await response.json();
+  
+  // Validate response with Zod
+  const validated = safeParseAuthResponse(data);
+  if (!validated) {
+    throw new Error('Invalid response format from server');
+  }
+
+  return validated;
 };
