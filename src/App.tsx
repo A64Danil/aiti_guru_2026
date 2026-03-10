@@ -1,7 +1,7 @@
 import { useEffect, lazy, Suspense } from 'react';
 import { Toaster } from 'sonner';
 import { useAuth } from './hooks';
-import { ErrorBoundary } from './components/ErrorBoundary';
+import { ErrorBoundary,  } from './components/ErrorBoundary';
 
 // Lazy loading компонентов
 const LoginPage = lazy(() => import('./components/LoginPage').then(m => ({ default: m.LoginPage })));

@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from 'react';
-import { useAuth } from '../hooks';
-import type { LoginFormData } from '../types';
+import { useAuth } from '../../hooks';
+import type { LoginFormData } from '../../types';
 
 export function LoginPage() {
   const { login } = useAuth();

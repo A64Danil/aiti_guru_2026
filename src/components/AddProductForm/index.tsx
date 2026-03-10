@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from 'react';
-import type { Product, AddProductFormData } from '../types';
-import { MESSAGES } from '../constants';
+import type { Product, AddProductFormData } from '../../types';
+import { MESSAGES } from '../../constants';
 
 interface AddProductFormProps {
   onSubmit: (product: Product) => void;

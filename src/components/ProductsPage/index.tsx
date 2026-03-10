@@ -1,9 +1,9 @@
 import { useState, type ChangeEvent } from 'react';
-import { useProducts, useAuth } from '../hooks';
-import { Modal } from './Modal';
-import { AddProductForm } from './AddProductForm';
-import { formatPrice, formatRating, formatId } from '../utils';
-import type { Product, SortField } from '../types';
+import { useProducts, useAuth } from '../../hooks';
+import { Modal } from './../Modal';
+import { AddProductForm } from './../AddProductForm';
+import { formatPrice, formatRating, formatId } from '../../utils';
+import type { Product, SortField } from '../../types';
 
 export function ProductsPage() {
   const { products, isLoading, error, searchQuery, sortState, handleSort, addProduct, search } = useProducts();
