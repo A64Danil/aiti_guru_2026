@@ -1,5 +1,5 @@
 import { useState, type FormEvent, type ChangeEvent } from 'react';
-import { useProducts, useAuth, useSortIcon } from '../hooks';
+import { useProducts, useAuth } from '../hooks';
 import type { Product, AddProductFormData, SortField } from '../types';
 
 export function ProductsPage() {
@@ -15,6 +15,12 @@ export function ProductsPage() {
     sku: '',
   });
   const [formErrors, setFormErrors] = useState<Partial<Record<keyof AddProductFormData, string>>>({});
+
+  // Helper function for sort icons (not a hook!)
+  const getSortIcon = (field: SortField): string => {
+    if (sortState.field !== field) return '⇅';
+    return sortState.order === 'asc' ? '↑' : '↓';
+  };
 
   // Handle search input
   const handleSearchChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -119,19 +125,19 @@ export function ProductsPage() {
               <thead>
                 <tr>
                   <th onClick={() => handleSort('title')}>
-                    Наименование {useSortIcon('title', sortState)}
+                    Наименование {getSortIcon('title')}
                   </th>
                   <th onClick={() => handleSort('brand')}>
-                    Вендор {useSortIcon('brand', sortState)}
+                    Вендор {getSortIcon('brand')}
                   </th>
                   <th onClick={() => handleSort('id')}>
-                    Артикул {useSortIcon('id', sortState)}
+                    Артикул {getSortIcon('id')}
                   </th>
                   <th onClick={() => handleSort('rating')}>
-                    Оценка {useSortIcon('rating', sortState)}
+                    Оценка {getSortIcon('rating')}
                   </th>
                   <th onClick={() => handleSort('price')}>
-                    Цена {useSortIcon('price', sortState)}
+                    Цена {getSortIcon('price')}
                   </th>
                 </tr>
               </thead>

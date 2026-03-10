@@ -127,8 +127,3 @@ export function useProducts() {
     refetch: fetchProducts,
   };
 }
-
-export function useSortIcon(field: SortField, sortState: { field: SortField | null; order: SortOrder }) {
-  if (sortState.field !== field) return '⇅';
-  return sortState.order === 'asc' ? '↑' : '↓';
-}
