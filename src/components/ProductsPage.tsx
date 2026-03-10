@@ -2,6 +2,7 @@ import { useState, type ChangeEvent } from 'react';
 import { useProducts, useAuth } from '../hooks';
 import { Modal } from './Modal';
 import { AddProductForm } from './AddProductForm';
+import { formatPrice, formatRating, formatId } from '../utils';
 import type { Product, SortField } from '../types';
 
 export function ProductsPage() {
@@ -102,11 +103,11 @@ export function ProductsPage() {
                   <tr key={product.id}>
                     <td className='product-title'>{product.title}</td>
                     <td className='product-brand'>{product.brand}</td>
-                    <td>{product.id.toString().padStart(6, '0')}</td>
+                    <td>{formatId(product.id)}</td>
                     <td className={product.rating < 3 ? 'rating-low' : 'rating-normal'}>
-                      {product.rating.toFixed(1)}/5
+                      {formatRating(product.rating)}
                     </td>
-                    <td>{product.price.toFixed(2)} ₽</td>
+                    <td>{formatPrice(product.price)}</td>
                   </tr>
                 ))}
               </tbody>
