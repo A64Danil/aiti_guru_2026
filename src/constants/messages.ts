@@ -8,6 +8,7 @@ export const MESSAGES = {
   PRODUCTS_LOAD_ERROR: 'Не удалось загрузить товары',
   PRODUCTS_SEARCH_ERROR: 'Ошибка при поиске товаров',
   PRODUCTS_ADD_SUCCESS: 'Товар успешно добавлен',
+  PRODUCTS_ADD_ERROR: 'Не удалось добавить товар',
 
   // Validation
   VALIDATION_USERNAME_REQUIRED: 'Логин обязателен',

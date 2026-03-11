@@ -1,63 +1,83 @@
-import { useEffect, useMemo, useCallback } from 'react';
+import { useMemo, useCallback, useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { useProductsStore } from '../store';
 import { getProducts, searchProducts } from '../services/productsApi';
 import { useDebounce } from './useDebounce';
-import { isProductsResponse, isSearchProductsResponse } from '../schemas';
 import { MESSAGES } from '../constants';
 import type { Product, SortField, SortOrder } from '../types';
 
 export function useProducts() {
-  const {
-    products,
-    setProducts,
-    addProduct,
-    isLoading,
-    setIsLoading,
-    error,
-    setError,
-    searchQuery,
-    setSearchQuery,
-    sortState,
-    setSortState,
-  } = useProductsStore();
+  const queryClient = useQueryClient();
+  
+  // Search state
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  
+  // Sort state
+  const [sortState, setSortState] = useState<{ field: SortField; order: SortOrder }>({
+    field: 'id',
+    order: 'asc',
+  });
 
-  // Debounce the search query for API calls
+  // Debounce the search query
   const debouncedSearchQuery = useDebounce(searchQuery);
 
-  // Fetch all products
-  const fetchProducts = useCallback(async () => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const response = await getProducts();
-      
-      if (!isProductsResponse(response)) {
-        throw new Error('Invalid products response');
-      }
-      
-      setProducts(response.products);
-    } catch {
-      setError(MESSAGES.PRODUCTS_LOAD_ERROR);
-      toast.error(MESSAGES.PRODUCTS_LOAD_ERROR);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [setProducts, setIsLoading, setError]);
+  // Query: Fetch all products (when no search)
+  const { data: allProducts, isLoading: isLoadingAll, error: errorAll, refetch } = useQuery({
+    queryKey: ['products', 'all'],
+    queryFn: () => getProducts().then(res => res.products),
+    enabled: !debouncedSearchQuery.trim(),
+    staleTime: 5 * 60 * 1000,
+  });
 
-  // Search products by query
-  const search = useCallback(async (query: string) => {
-    setSearchQuery(query);
-  }, [setSearchQuery]);
+  // Query: Search products (when there's a search query)
+  const { data: searchResults, isLoading: isLoadingSearch, error: errorSearch } = useQuery({
+    queryKey: ['products', 'search', debouncedSearchQuery],
+    queryFn: () => searchProducts(debouncedSearchQuery).then(res => res.products),
+    enabled: debouncedSearchQuery.trim().length > 0,
+    staleTime: 5 * 60 * 1000,
+  });
 
-  // Sort
+  // Determine current products based on search
+  const products = debouncedSearchQuery.trim() ? (searchResults ?? []) : (allProducts ?? []);
+
+  // Loading state
+  const isLoading = isLoadingAll || isLoadingSearch;
+
+  // Error state
+  const error = errorAll?.message || errorSearch?.message || null;
+
+  // Mutation: Add product
+  const addProductMutation = useMutation({
+    mutationFn: (product: Product) => {
+      // Simulate adding - in real app this would be an API call
+      return Promise.resolve(product);
+    },
+    onSuccess: (newProduct) => {
+      // Add to cache manually
+      queryClient.setQueryData<Product[]>(['products', 'all'], (old) => {
+        return old ? [newProduct, ...old] : [newProduct];
+      });
+      toast.success(MESSAGES.PRODUCTS_ADD_SUCCESS);
+    },
+    onError: () => {
+      toast.error(MESSAGES.PRODUCTS_ADD_ERROR);
+    },
+  });
+
+  // Sort handler
   const handleSort = useCallback((field: SortField) => {
-    const newOrder: SortOrder = 
-      sortState.field === field && sortState.order === 'asc' ? 'desc' : 'asc';
-    setSortState({ field, order: newOrder });
-  }, [sortState, setSortState]);
+    setSortState((prev) => ({
+      field,
+      order: prev.field === field && prev.order === 'asc' ? 'desc' : 'asc',
+    }));
+  }, []);
 
-  // Sorted products
+  // Search handler
+  const search = useCallback((query: string) => {
+    setSearchQuery(query);
+  }, []);
+
+  // Sorted products (client-side sorting)
   const sortedProducts = useMemo(() => {
     let result = [...products];
 
@@ -89,43 +109,10 @@ export function useProducts() {
     return result;
   }, [products, sortState]);
 
-  // Add product
-  const addNewProduct = useCallback((product: Product) => {
-    addProduct(product);
-    toast.success(MESSAGES.PRODUCTS_ADD_SUCCESS);
-  }, [addProduct]);
-
-  // Load products on mount
-  useEffect(() => {
-    fetchProducts();
-  }, [fetchProducts]);
-
-  // Search when debounced query changes
-  useEffect(() => {
-    const doSearch = async () => {
-      if (!debouncedSearchQuery.trim()) {
-        await fetchProducts();
-        return;
-      }
-
-      setIsLoading(true);
-      try {
-        const response = await searchProducts(debouncedSearchQuery);
-        
-        if (!isSearchProductsResponse(response)) {
-          throw new Error('Invalid search response');
-        }
-        
-        setProducts(response.products);
-      } catch {
-        toast.error(MESSAGES.PRODUCTS_SEARCH_ERROR);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    doSearch();
-  }, [debouncedSearchQuery, fetchProducts, setProducts, setIsLoading]);
+  // Add product handler
+  const addProduct = useCallback((product: Product) => {
+    addProductMutation.mutate(product);
+  }, [addProductMutation]);
 
   return {
     products: sortedProducts,
@@ -134,8 +121,8 @@ export function useProducts() {
     searchQuery,
     sortState,
     handleSort,
-    addProduct: addNewProduct,
+    addProduct,
     search,
-    refetch: fetchProducts,
+    refetch,
   };
 }
