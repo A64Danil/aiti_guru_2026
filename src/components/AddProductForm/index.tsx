@@ -40,7 +40,7 @@ export function AddProductForm({ onSubmit, onClose }: AddProductFormProps) {
     }
 
     const newProduct: Product = {
-      id: Date.now(),
+      id: parseInt(formData.sku),
       title: formData.title,
       description: '',
       price: parseFloat(formData.price),
@@ -109,7 +109,7 @@ export function AddProductForm({ onSubmit, onClose }: AddProductFormProps) {
         <div className="form-group">
           <label className="form-label">Артикул</label>
           <input
-            type="text"
+            type="number"
             className={`form-input ${formErrors.sku ? 'error' : ''}`}
             value={formData.sku}
             onChange={(e) => setFormData({ ...formData, sku: e.target.value })}
