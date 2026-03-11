@@ -1,14 +1,22 @@
 import { useEffect, lazy, Suspense } from 'react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClient } from '@tanstack/react-query';
+import { createAsyncStoragePersister } from '@tanstack/query-async-storage-persister';
+import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
 import { Toaster } from 'sonner';
 import { useAuth } from './hooks';
 import { ErrorBoundary } from './components/ErrorBoundary';
+
+// Создаём Persister для localStorage
+const persister = createAsyncStoragePersister({
+  storage: window.localStorage,
+});
 
 // Создаём QueryClient
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: 5 * 60 * 1000, // 5 минут
+      gcTime: 24 * 60 * 60 * 1000, // 24 часа
       retry: 1,
     },
   },
@@ -38,9 +46,12 @@ function AppContent() {
 
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
+    <PersistQueryClientProvider
+      client={queryClient}
+      persistOptions={{ persister }}
+    >
       <AppContent />
-    </QueryClientProvider>
+    </PersistQueryClientProvider>
   );
 }
 
